@@ -33,8 +33,9 @@ print(gradient_colors)
 
 
 
-from tkinter import Canvas,Tk,BOTH
+from tkinter import Canvas,Tk,BOTH # For the `GradientCanvasObject`
 import math
+from random import sample,choice
 from typing import Literal
 
 
@@ -434,7 +435,7 @@ Generate coordinates of a line using an `angle` `OriginPoint` and `length`
 
 class Gradient:
 
-    def __init__(self,*colors,mode:Literal['rgb','hex']=None) -> None:
+    def __init__(self,colors=[],mode:Literal['rgb','hex']=None) -> None:
         """ 
 Generate a list of colors of either rgb or hex 
 >>> gradient = Gradient()
@@ -475,7 +476,7 @@ convert hex list to rgb list
 
 
 
-    def __call__(self,*colors,mode:Literal['rgb','hex']=None) -> None:
+    def __call__(self,colors,mode:Literal['rgb','hex']=None) -> None:
         """ Reconfigure colors and mode (rgb or hex)"""
         self.colors = colors
         self.ColorlList =[]
@@ -520,7 +521,7 @@ convert hex list to rgb list
     
 
 
-    def _MultiGradient(self,*COLORS)-> list:
+    def _MultiGradient(self,COLORS = [])-> list:
 
         COLORS = self.colors if COLORS.__len__() < 1 else COLORS
         fade = []
@@ -540,7 +541,7 @@ convert hex list to rgb list
 
 
 
-    def MindMultiGradient(self,lengthOfList:int = 0,*COLORS)-> list:
+    def MindMultiGradient(self,lengthOfList:int = 0,COLORS = [])-> list:
         """ 
 Generate a list of `lengthOfList` colors
 >>> gradient.MindMultiGradient(20,'cyan','blue')
@@ -556,7 +557,7 @@ Generate a list of `lengthOfList` colors
             case _:
                 self.mode = 'rgb'
         """ lengthOfList: numbers of colors in that list"""
-        grad = [i for i in self._MultiGradient(*COLORS)]
+        grad = [i for i in self._MultiGradient(COLORS)]
         length = grad.__len__()
         fil = []
         if lengthOfList !=0:
@@ -589,7 +590,7 @@ Generate a list of `lengthOfList` colors
 
 
 
-    def DoubleReveredMergedMindMultiGradient(self,lengthOfList ,*COLORS) -> list:
+    def DoubleReveredMergedMindMultiGradient(self,lengthOfList ,COLORS) -> list:
         """ 
 Fading from blue to cyan to blue.
 It runs the `MindMultiGradient` with half of `lengthOfList`.
@@ -605,7 +606,7 @@ The returned list is extended with a revered version of it self
                 self.mode = 'hex'
             case _:
                 self.mode = 'rgb'
-        spread = self.MindMultiGradient(int(lengthOfList/2),*COLORS)[::-1]
+        spread = self.MindMultiGradient(int(lengthOfList/2),COLORS)[::-1]
         spread.extend(spread[::-1])
         self.colors = COLORS
         return spread
@@ -738,7 +739,7 @@ To reconfigure the coordinates
         self.delete()
 
         objectCreator = self.__objectDictCreate[self.__objectTag]
-        self.__colorList = self.__gradientMethod(self.__spread,*self.__colors)
+        self.__colorList = self.__gradientMethod(self.__spread,self.__colors)
         self.__coords = list(self.__coords)
         if self.__objectTag in 'polygon' and self.__objectTag not in 'line' :
             r = True
@@ -800,38 +801,42 @@ def Example():
     # root.attributes('-alpha',0.3)
     root.attributes('-topmost',1)
     geo = lambda : (int(root.winfo_width()),int(root.winfo_height()))
-    canvas = Canvas(root,width=geo()[0],height=geo()[1],bg='black',highlightthickness=0)
+    canvas = Canvas(root,width=geo()[0],height=geo()[1],bg='#021316',highlightthickness=0)
     canvas.pack(expand=True,fill=BOTH)
     
-    grad('black','cyan','blue','black')
+    grad(('black','cyan','blue','black'))
     print(canvas['width'])
     print(canvas['height'])
-    lines = []
-    loop = False
-    r = 0
-    colorsp = grad.MindMultiGradient(200)
+    ackeys = list(AllColors.keys())
+    ackeys.remove('black')
+    
 
     gr = GradientCanvasObject(coords=(100,100,100,200,400)
                               ,spread=500,
                               canvas=canvas,
-                              gradientMethod='MMG',
+                              gradientMethod='DRMMG',
                               objectTag='c'
                         )
     while True:
-        pos = root.winfo_pointerxy()
-        if r == colorsp.__len__()-1:
-            r = 0
         
-        color =  colorsp[r],canvas['bg']
-        # root.attributes('-transparentcolor',color[0])
-        # color =  rgb2hex(pixel(pos[0],pos[1])),canvas['bg']
-        r = r+1
-        canvas.config(width=geo()[0],height=geo()[1])
-        lx = (pos[0]-root.winfo_rootx())
-        ly = (pos[1]-root.winfo_rooty())
-        # gr.create(coords=(int(int(canvas['width'])/2),int(int(canvas['height'])/2),int(int(canvas['width'])/2),int(int(canvas['height'])/2)),colors=color)
-        gr.create(coords=(lx,ly,lx,ly),colors=color)
+        ichoice = choice(range(ackeys.__len__()))
+        inc = 3
+        colorChoice = canvas['bg'],*ackeys[ichoice:ichoice+inc if ichoice < ackeys.__len__()-(inc+1) else ichoice-(inc+1)],canvas['bg']
+        grad(colorChoice)
+        colorsp = grad.MindMultiGradient(500)
         root.update()
+        for i in colorsp:
+            pos = root.winfo_pointerxy()
+            
+            color = i,canvas['bg']
+            # root.attributes('-transparentcolor',color[0])
+            # color =  rgb2hex(pixel(pos[0],pos[1])),canvas['bg']
+            canvas.config(width=geo()[0],height=geo()[1])
+            lx = (pos[0]-root.winfo_rootx())
+            ly = (pos[1]-root.winfo_rooty())
+            # gr.create(coords=(int(int(canvas['width'])/2),int(int(canvas['height'])/2),int(int(canvas['width'])/2),int(int(canvas['height'])/2)),colors=color)
+            gr.create(coords=(lx,ly,lx,ly),colors=color)
+            root.update()
         
 
 
