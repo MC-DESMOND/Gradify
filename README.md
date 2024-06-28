@@ -15,9 +15,15 @@ from gradify import Gradient
 
 # Generate a linear gradient from cyan to blue to yellow with only an amount of 50 colors
 length_of_gradient = 50
-gradient_colors:list = Gradient('cyan','blue','yellow').MindMultiGradient(length_of_gradient)
+gradient_object:list = Gradient('cyan','blue','yellow')
+gradient_colors = gradient_object.MindMultiGradient(
+                        length_of_gradient
+                        )
 print(gradient_colors)
 
-# there are still more in this module, Explore
+# there are still more, Explore
 # Use the generated colors in your application...
+#
+#
+#
 ```
