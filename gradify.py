@@ -445,7 +445,8 @@ Generate a list of colors of either rgb or hex
 ['#00f9ff', '#00f1ff', '#00e9ff', '#00e1ff', '#00d9ff', '#00d1ff', '#00c9ff', '#00c1ff', '#00b9ff', '#00b1ff', '#00a9ff', '#00a1ff', '#0099ff', '#0091ff', '#0089ff', '#0085ff', '#0081ff', '#007dff', '#0079ff', '#0075ff', '#0071ff', '#006dff', '#0069ff', '#0065ff', '#0061ff', '#005dff', '#0059ff', '#0055ff', '#0051ff', '#004dff', '#0049ff', '#0045ff', '#0041ff', '#003dff', '#0039ff', '#0035ff', '#0031ff', '#002dff', '#0029ff', '#0025ff', '#0021ff', '#001dff', '#0019ff', '#0015ff', '#0011ff', '#000dff', '#0009ff', '#0005ff', '#0001ff', '#0000ff']
 >>> gradient.colors
 ('cyan', 'blue')
-
+>>> gradient.mode
+hex
 Fading from blue to cyan to blue
 ------------------
 >>> colorlist = gradient.DoubleReveredMergedMindMultiGradient(40) 
