@@ -38,7 +38,6 @@ import math
 from random import sample,choice
 from typing import Literal
 
-
 AllColors = {'aliceblue': [240, 248, 255],
  'alienarmpit': [132, 222, 2],
  'alloyorange': [196, 98, 16],
@@ -562,29 +561,31 @@ Generate a list of `lengthOfList` colors
         length = grad.__len__()
         fil = []
         if lengthOfList !=0:
-            if lengthOfList > length:
-                remains = lengthOfList - length
-                it = 0
-                grad.reverse()
-                while grad.__len__() <= lengthOfList:  
-                    for index, item in enumerate(grad):
-                        for x in range(2):
-                            fil.append(item)
-                    if fil.__len__() > lengthOfList:
-                        grad = [i for i in fil]
-                        fil = []
-                        break
-                    grad = [i for i in fil]
-                    fil = []
-                grad.reverse()
-            if lengthOfList < grad.__len__():
-                remains = length - lengthOfList
-                i = 0
-                while grad.__len__() >lengthOfList:
-                        i = i + 1
-                        if i >= grad.__len__()-1:
-                            i = 1
-                        grad.remove(grad[i-1])
+            if lengthOfList < 0:
+                lengthOfList = 0
+            f = True
+            while grad.__len__() != lengthOfList:
+                if lengthOfList > grad.__len__():
+                    for i in range(0,(grad.__len__())*2,2):
+                        grad.insert(i,grad[i])
+                else:
+                    fw = 0
+                    bw = 0
+                    r = 0
+                    while lengthOfList < grad.__len__():
+                                    
+                        if r >= grad.__len__()-1:
+                            r = 0
+                        if f:
+                            grad.remove(grad[int(fw-r)])
+                            f = False
+                        else:
+                            grad.remove(grad[int(bw+r)])
+                            f = True
+                        r = r+1
+
+
+
         self.colors = COLORS
         
         return grad
@@ -800,11 +801,12 @@ def Example():
     root.update()
     root.title('Gradient Tk')
     # root.attributes('-alpha',0.3)
+    # 
     root.attributes('-topmost',1)
     geo = lambda : (int(root.winfo_width()),int(root.winfo_height()))
     canvas = Canvas(root,width=geo()[0],height=geo()[1],bg='#021316',highlightthickness=0)
     canvas.pack(expand=True,fill=BOTH)
-    
+    # root.attributes('-transparentcolor',canvas['bg'])
     grad(('black','cyan','blue','black'))
     print(canvas['width'])
     print(canvas['height'])
@@ -813,11 +815,15 @@ def Example():
     
 
     gr = GradientCanvasObject(coords=(100,100,100,200,400)
-                              ,spread=500,
+                              ,spread=200,
                               canvas=canvas,
                               gradientMethod='DRMMG',
                               objectTag='c'
                         )
+    lines = GradientCanvasObject(coords=(0,0,0,0),
+                                 spread=200,
+                                 canvas=canvas,
+                                 objectTag='line')
     while True:
         
         ichoice = choice(range(ackeys.__len__()))
@@ -837,6 +843,7 @@ def Example():
             ly = (pos[1]-root.winfo_rooty())
             # gr.create(coords=(int(int(canvas['width'])/2),int(int(canvas['height'])/2),int(int(canvas['width'])/2),int(int(canvas['height'])/2)),colors=color)
             gr.create(coords=(lx,ly,lx,ly),colors=color)
+            # lines.create(coords=(0,0,0,int(canvas['height'])),spread=lx,colors=[canvas['bg'],'#ff0000','#00ff00','#0000ff',canvas['bg']])
             root.update()
         
 
