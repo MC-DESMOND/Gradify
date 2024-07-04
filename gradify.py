@@ -404,13 +404,29 @@ Using color names
 
 
 
+def pointToAngle(x1,y1,x2, y2):
+    # Calculate the change in x and y
+    dx = x2 - x1
+    dy = y2 - y1
+
+    # Use math.atan2 for accurate angle calculation (handles quadrants)
+    radians = math.atan2(dy, dx)
+
+    # Convert radians to degrees
+    degrees = math.degrees(radians)
+
+    # Handle negative angles (optional)
+    if degrees < 0:
+        degrees += 360  # Convert to positive angle between 0 and 360
+
+    return degrees
 
 
-def angleToLinePoint(angle, OriginPoint, length):
+def angleToPoint(angle, OriginPoint, length):
   """
 Generate coordinates of a line using an `angle` `OriginPoint` and `length` 
 
->>> angleToLinePoint(60,(20,30),50)
+>>> angleToPoint(60,(20,30),50)
 (20, 30, -23.30127018922194, 50)
 
   """
@@ -427,7 +443,7 @@ Generate coordinates of a line using an `angle` `OriginPoint` and `length`
   x2 = x1 + x_offset
   y2 = y1 + y_offset
 
-  return (x1,y1,x2, length)
+  return (x1,y1,x2, y2)
 
 
 
