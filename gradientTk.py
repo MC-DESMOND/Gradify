@@ -1,7 +1,8 @@
 import math
 import time
+from tkinter import Canvas
 from typing import Literal
-from gradify import Gradient , angleToPoint ,pointToAngle , AllColors , Coordinates
+from gradify import Gradient , angleToPoint ,pointToAngle , AllColors , Coordinates,GradientCanvasObject
 from tkinter import *
 
 class GradientLine(Gradient):
@@ -50,9 +51,10 @@ class GradientLine(Gradient):
     
     def _createDotLinesCoords(self):
         for x1 , y1 in self.dLIcoords: 
-            coord1 = angleToPoint(pointToAngle(self.x1,self.y1,self.x2,self.y2)+95,(x1,y1),self.width)
+            coord1 = list(angleToPoint(pointToAngle(self.x1,self.y1,self.x2,self.y2)+95,(x1,y1),self.width))
             # print((x1,y1,x2,y2),end='  -c-  ')
             self.dotLineCoords.append(coord1)
+
 
     def create(self):
         self.delete()
@@ -66,26 +68,57 @@ class GradientLine(Gradient):
         self.dotlines.clear()
 
 
+class GradientCircle(GradientCanvasObject):
+    def __init__(self, canvas: Canvas, coords: tuple[int, int], radius:int = 40, border: int = 10, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRMMG'] = 'MMG') -> None:
+        self.radius = radius
+        self.ccoords = coords
+        super().__init__(canvas,[coords[0]-radius,coords[1]-radius,coords[0]+radius,coords[1]+radius], border, colors, gradientMethod, objectTag = 'circle')
+
+    def __call__(self, coords: list = None,radius:int = None, border: int = None, colors: list = None):
+        if radius:
+            self.radius = radius
+        if coords:
+            self.ccoords = coords
+        self.ccoords = [self.ccoords[0]-self.radius,self.ccoords[1]-self.radius,self.ccoords[0]+self.radius,self.ccoords[1]+self.radius]
+
+        return super().__call__(self.ccoords, border, colors)
+        
+class GradientRec(GradientCanvasObject):
+    def __init__(self, canvas: Canvas, coords: tuple[int, int, int, int], border: int, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRMMG'] = 'MMG') -> None:
+        super().__init__(canvas, coords, border, colors, gradientMethod, objectTag = 'rectangle')
+
+    def __call__(self, coords: list = None, border: int = None, colors: list = None):
+        return super().__call__(coords, border, colors)
+
 def main():
     root = Tk()
     
     canvas = Canvas(root,width=500,height=500,bg='black')
     canvas.pack(expand=True,fill='both')
-    line1 = GradientLine(canvas,(-30,-30,500,500),colors=('black','#00ffff'),width=5)
+    line1 = GradientLine(canvas,(-30,-30,500,500),colors=('black','cyan'),width=10)
     line1.create()
     space = 40
-    line2 = GradientLine(canvas,(100,100,400,800),colors=('cyan','blue','#004848'),width=50)
+    line2 = GradientLine(canvas,(100,100,400,800),colors=('black','blue'),width=10)
     line2.create()
+    circle = GradientCircle(canvas,(0,0),40,border=20,colors=['cyan','black'])
     # root.resizable(False,False)
-    i = 0
+    i = 90
     while True:
-        time.sleep(0.001)
-        line1([int(v) for v in angleToPoint(i,(300,300),100)])
+        time.sleep(0.01)
+        pos = root.winfo_pointerxy()
+        lx = (pos[0]-root.winfo_rootx())
+        ly = (pos[1]-root.winfo_rooty())
+        length = 200
+        line1([int(v) for v in angleToPoint(i,(lx,ly),int(length/1.5))])
+        line2([int(v) for v in angleToPoint(i*2,(lx,ly),length)])
+        circle((lx,ly),radius=length)
+        circle.create()
         i +=5
         if i >= 360:
             i = 0
-        print(i)
+        # print(i)
         line1.create()
+        line2.create()
         root.update()
     root.mainloop()
 

@@ -696,9 +696,10 @@ The returned list is extended with a revered version of it self
 
 class GradientCanvasObject:
     
-    def __init__(self,coords: tuple[int , int,int,int],
+    def __init__(self,
+                 canvas : Canvas
+                 ,coords: tuple[int , int,int,int],
                  spread : int,
-                 canvas : Canvas,
                  colors : list[str] = ['cyan','black'],
                  gradientMethod : Literal['MMG','DRMMG'] = 'MMG',
                  objectTag: Literal['circle','rectangle','polygon','line'] = 'circle') -> None:
@@ -753,7 +754,17 @@ To delete the gradient
         }
         self.__gradientMethod = self.__gradientMethods[gradientMethod]
 
-
+    def __call__(self,coords:list = None, spread : int = None ,colors:list = None,objectTag: Literal['circle','rectangle','polygon','line'] = None ):
+        self.delete()
+        if spread:
+            self.__spread = spread
+        if colors:
+            self.__colors = colors
+        if objectTag:
+            self.__objectTag = objectTag.lower()
+        if coords:
+            self.__coords = coords
+        pass
 
     def delete(self):
         """ 
