@@ -8,8 +8,6 @@ from gradify import (
         Coordinates,
     )
 from tkinter import *
-import datetime 
-
 
 
 class GradientCanvasObject:
@@ -286,9 +284,9 @@ def Example():
         lx = (pos[0]-root.winfo_rootx())
         ly = (pos[1]-root.winfo_rooty())
         length = 200
-        seci = ((int(time.strftime('%S'))/60)*360)
-        mini = ((int(time.strftime('%M'))/60)*360)
-        hri = ((int(time.strftime('%H'))/60)*360)
+        seci = ((int(time.strftime('%S'))/60)*360)-90
+        mini = ((int(time.strftime('%M'))/60)*360)-90
+        hri = ((int(time.strftime('%H'))/12)*360)-90
         sec([int(v) for v in angleToPoint(seci,(lx,ly),length)])
         minute([int(v) for v in angleToPoint(mini,(lx,ly),length-20)])
         hour([int(v) for v in angleToPoint(hri,(lx,ly),int(length/1.5))])
