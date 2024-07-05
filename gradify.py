@@ -754,7 +754,7 @@ To delete the gradient
         }
         self.__gradientMethod = self.__gradientMethods[gradientMethod]
 
-    def __call__(self,coords:list = None, spread : int = None ,colors:list = None,objectTag: Literal['circle','rectangle','polygon','line'] = None ):
+    def __call__(self,coords:list = None, spread : int = None ,colors:list = None,objectTag: Literal['circle','rectangle','polygon','line'] = None,gradientMethod : Literal['MMG','DRMMG'] = None ):
         self.delete()
         if spread:
             self.__spread = spread
@@ -764,6 +764,8 @@ To delete the gradient
             self.__objectTag = objectTag.lower()
         if coords:
             self.__coords = coords
+        if gradientMethod:
+            self.__gradientMethod = gradientMethod
         pass
 
     def delete(self):

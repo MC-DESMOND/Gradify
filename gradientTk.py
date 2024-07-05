@@ -1,8 +1,13 @@
-import math
 import time
 from tkinter import Canvas
 from typing import Literal
-from gradify import Gradient , angleToPoint ,pointToAngle , AllColors , Coordinates,GradientCanvasObject
+from gradify import (
+        Gradient,
+        angleToPoint,
+        pointToAngle,
+        Coordinates,
+        GradientCanvasObject
+    )
 from tkinter import *
 
 class GradientLine(Gradient):
@@ -74,21 +79,21 @@ class GradientCircle(GradientCanvasObject):
         self.ccoords = coords
         super().__init__(canvas,[coords[0]-radius,coords[1]-radius,coords[0]+radius,coords[1]+radius], border, colors, gradientMethod, objectTag = 'circle')
 
-    def __call__(self, coords: list = None,radius:int = None, border: int = None, colors: list = None):
+    def __call__(self, coords: list = None,radius:int = None, border: int = None, colors: list = None,gradientMethod: Literal['MMG'] | Literal['DRMMG'] = None):
         if radius:
             self.radius = radius
         if coords:
             self.ccoords = coords
         self.ccoords = [self.ccoords[0]-self.radius,self.ccoords[1]-self.radius,self.ccoords[0]+self.radius,self.ccoords[1]+self.radius]
 
-        return super().__call__(self.ccoords, border, colors)
+        return super().__call__(self.ccoords, border, colors,gradientMethod=gradientMethod)
         
-class GradientRec(GradientCanvasObject):
-    def __init__(self, canvas: Canvas, coords: tuple[int, int, int, int], border: int, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRMMG'] = 'MMG') -> None:
+class GradientRectangle(GradientCanvasObject):
+    def __init__(self, canvas: Canvas, coords: tuple[int, int, int, int], border: int = 30, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRMMG'] = 'MMG') -> None:
         super().__init__(canvas, coords, border, colors, gradientMethod, objectTag = 'rectangle')
 
-    def __call__(self, coords: list = None, border: int = None, colors: list = None):
-        return super().__call__(coords, border, colors)
+    def __call__(self, coords: list = None, border: int = None, colors: list = None,gradientMethod: Literal['MMG'] | Literal['DRMMG'] = None):
+        return super().__call__(coords, border, colors,gradientMethod=gradientMethod)
 
 def main():
     root = Tk()
