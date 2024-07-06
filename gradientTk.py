@@ -190,16 +190,18 @@ class GradientLine(Gradient):
         self.dotlines = []
         self.dotlinescolors = []
         self.dotLineCoords = []
-        self.dLIcoords = Coordinates(coords)
         self.coords = coords
         self.x1 = coords[0]
         self.y1 = coords[1]
         self.x2 = coords[2]
         self.y2 = coords[3]
-        self.length = self.dLIcoords.__len__()
         self.width = width
         self.xwidth = xwidth
         self._createDotLinesCoords()
+        self.length = self.dLIcoords.__len__()
+        print(self.dotLineCoords[0])
+        print(self.dotLineCoords[::-1][0])
+        print(self.coords)
         self.dotlinescolors = self.MindMultiGradient(self.length)
 
     def __call__(self, coords:tuple = [], colors=[],width=3, mode: Literal['rgb'] | Literal['hex'] = None,xwidth = 3) -> None:
@@ -207,8 +209,6 @@ class GradientLine(Gradient):
             self.colors = colors
         if coords.__len__() >3:
             self.coords = coords
-            self.dLIcoords = Coordinates(coords)
-            self.length = self.dLIcoords.__len__()
             self.x1 = coords[0]
             self.y1 = coords[1]
             self.x2 = coords[2]
@@ -223,14 +223,19 @@ class GradientLine(Gradient):
         self.dotlinescolors = []
         self.dotLineCoords = []
         self._createDotLinesCoords()
+        self.length = self.dLIcoords.__len__()
         self.dotlinescolors = self.MindMultiGradient(self.length)
 
 
     
     def _createDotLinesCoords(self):
-        for x1 , y1 in self.dLIcoords: 
-            coord1 = list(angleToPoint(pointToAngle(self.x1,self.y1,self.x2,self.y2)+95,(x1,y1),self.width))
-            # print((x1,y1,x2,y2),end='  -c-  ')
+        self.dLIcoords = Coordinates(self.coords)
+        for x1 , y1 in self.dLIcoords:
+            w2 = int (self.width/2) 
+            coord1 = list(angleToPoint(pointToAngle(self.x1,self.y1,self.x2,self.y2)+95,(x1,y1),w2))
+            minus = lambda num1,num2 : int (num2-num1)
+            coord1[0] = coord1[0]-minus(coord1[0],coord1[2])
+            coord1[1] = coord1[1]-minus(coord1[1],coord1[3])
             self.dotLineCoords.append(coord1)
 
 
@@ -270,19 +275,23 @@ class GradientRectangle(GradientCanvasObject):
 
 def Example():
     root = Tk()
-    canvas = Canvas(root,width=500,height=500,bg='black')
+    canvas = Canvas(root,width=500,height=500,bg='black',highlightthickness=0)
+    root.geometry(f'{int(canvas["width"])}x{canvas["height"]}')
     canvas.pack(expand=True,fill='both')
     sec = GradientLine(canvas,(-30,-30,500,500),colors=('black','cyan'),width=10)
-    minute = GradientLine(canvas,(100,100,400,800),colors=('black','#00ffaf'),width=10)
-    hour = GradientLine(canvas,(100,100,400,800),colors=('black','navy'),width=10)
-    circle = GradientCircle(canvas,(0,0),40,border=40,gradientMethod='DRMMG',colors=['cyan','#004848','black'])
+    minute = GradientLine(canvas,(100,100,400,800),colors=('black','#00dddd'),width=10)
+    hour = GradientLine(canvas,(100,100,400,800),colors=('black','#004C4c'),width=10)
+    circle = GradientCircle(canvas,(0,0),40,border=30,gradientMethod='DRMMG',colors=['cyan','#004848','black'])
     # root.resizable(False,False)
     
     while True:
         time.sleep(0.01)
         pos = root.winfo_pointerxy()
-        lx = (pos[0]-root.winfo_rootx())
-        ly = (pos[1]-root.winfo_rooty())
+        canvas.config(width=int(root.winfo_width()),height=int(root.winfo_height()))
+        lx = int(int(canvas['width'])/2)
+        ly = int(int(canvas['height'])/2)
+        # lx = (pos[0]-root.winfo_rootx())
+        # ly = (pos[1]-root.winfo_rooty())
         length = 200
         seci = ((int(time.strftime('%S'))/60)*360)-90
         mini = ((int(time.strftime('%M'))/60)*360)-90
@@ -290,7 +299,7 @@ def Example():
         sec([int(v) for v in angleToPoint(seci,(lx,ly),length)])
         minute([int(v) for v in angleToPoint(mini,(lx,ly),length-20)])
         hour([int(v) for v in angleToPoint(hri,(lx,ly),int(length/1.5))])
-        circle((lx,ly),radius=length)
+        circle((lx,ly),radius=length,border=int(int(canvas['width'])/2))
         circle.create()
         sec.create()
         minute.create()

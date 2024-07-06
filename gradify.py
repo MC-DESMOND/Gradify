@@ -344,9 +344,36 @@ AllColors = {'aliceblue': [240, 248, 255],
  'yellowsunshine': [255, 247, 0]}
 
 
+def MiddlePoint(coordinates):
+  """
+  Calculates the middle point of a line represented by a list of coordinates.
+
+  Args:
+      coordinates: A list containing four coordinates (x1, y1, x2, y2) representing the endpoints of the line.
+
+  Returns:
+      A tuple containing the x and y coordinates of the middle point.
+
+  Raises:
+      ValueError: If the input list does not contain exactly four elements.
+  """
+
+  if len(coordinates) != 4:
+    raise ValueError("Input list must contain exactly four coordinates (x1, y1, x2, y2).")
+
+  # Extract x and y coordinates from the list
+  x1, y1, x2, y2 = coordinates
+
+  # Calculate the middle point using the midpoint formula
+  middle_x = (x1 + x2) / 2
+  middle_y = (y1 + y2) / 2
+
+  return middle_x, middle_y
 
 
-def Coordinates(coords):
+
+
+def RangeCoordinates(coords):
   
     """
     This function generates a list of coordinates representing a line segment
