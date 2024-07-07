@@ -5,23 +5,23 @@ from gradify import (
         Gradient,
         angleToPoint,
         pointToAngle,
-        Coordinates,
+        RangeCoordinates,
     )
 from tkinter import *
 
 
-class GradientCanvasObject:
+class GradientCanvasObject(Gradient):
     
     def __init__(self,
                  canvas : Canvas
                  ,coords: tuple[int , int,int,int],
                  spread : int,
                  colors : list[str] = ['cyan','black'],
-                 gradientMethod : Literal['MMG','DRMMG'] = 'MMG',
+                 gradientMethod : Literal['MMG','DRM'] = 'MMG',
                  objectTag: Literal['circle','rectangle','polygon','line'] = 'circle') -> None:
         """ 
         
-This is used in tkinter Canvas to create Gradient lines and shapes
+This should used in tkinter Canvas to create Gradient lines and shapes
 >>> grObj = GradientCanvasObject(coords=(100,100,100,200,400) # Origin coordinates
             ,spread=500, # Amount of gradient shape
             canvas=canvas, # Canvas 
@@ -31,17 +31,18 @@ This is used in tkinter Canvas to create Gradient lines and shapes
 
 To create the gradient shapes
 ----------------------
->>> grObj.create(colors=('cyan','blue','green'))
-
+>>> grObj(colors=('cyan','blue','green'))
+>>> grObj.create()
 To reconfigure the coordinates
 ----------------------
->>> grObj.create(coords=(x1,y1,x2,y2),colors=('cyan','blue','green'))
-
+>>> grObj(coords=(x1,y1,x2,y2),colors=('cyan','blue','green'))
+>>> grObj.create()
 To delete the gradient
 ------------------
 >>> grObj.delete()
 
         """
+        super().__init__()
         self.__colorList = []
         self.__objectList = []
         self.__spread = spread
@@ -49,7 +50,7 @@ To delete the gradient
         self.__objectTag = objectTag.lower()
         self.__coords = coords
         self.__canvas = canvas
-        self.__gradient = Gradient()
+        
         self.variables = {}
         self.__objectDictCreate = {
             'line':self.__canvas.create_line,
@@ -65,12 +66,21 @@ To delete the gradient
             'p':self.__canvas.create_polygon,
         }
         self.__gradientMethods = {
-            'MMG': self.__gradient.MindMultiGradient,
-            'DRMMG': self.__gradient.DoubleReveredMergedMindMultiGradient
+            'MMG': self.MindMultiGradient,
+            'DRM': self.DoubleReveredMergedMindMultiGradient
         }
         self.__gradientMethod = self.__gradientMethods[gradientMethod]
 
-    def __call__(self,coords:list = None, spread : int = None ,colors:list = None,objectTag: Literal['circle','rectangle','polygon','line'] = None,gradientMethod : Literal['MMG','DRMMG'] = None ):
+    def __call__(self,coords:list = None,
+                  spread : int = None ,
+                  colors:list = None,
+                  objectTag: Literal['circle','rectangle','polygon','line'] = None,
+                  gradientMethod : Literal['MMG','DRM'] = None ):
+        ''' reconfigue the object
+        >>> grObj(coords=(x1,y1,x2,y2),colors=('cyan','blue','green'))
+        >>> grObj.colors
+        >>> ('cyan','blue','green')
+        '''
         self.delete()
         if spread:
             self.__spread = spread
@@ -99,34 +109,20 @@ To delete the gradient
 
 
 
-    def create(self,colors: list[str] = None,
-                 coords: tuple[int , int,int,int] = None,
-                 spread : int = None,
-                 gradientMethod : str = None,
-                 objectTag: Literal['circle','rectangle','polygon','line'] = None
-                 ):
+    def create(self):
         """ 
         
 To create the gradient shapes
 ----------------------
->>> grObj.create(colors=('cyan','blue','green'))
-
+>>> grObj(colors=('cyan','blue','green'))
+>>> grObj.create()
 To reconfigure the coordinates
 ----------------------
->>> grObj.create(coords=(x1,y1,x2,y2),colors=('cyan','blue','green'))
-
+>>> grObj(coords=(x1,y1,x2,y2),colors=('cyan','blue','green'))
+>>> grObj.create()
 
         """
-        gradientMethod = self.__gradientMethods[gradientMethod] if gradientMethod else self.__gradientMethod
-        objectTag = objectTag if objectTag else self.__objectTag
-        colors = colors if colors else self.__colors
-        coords = coords if coords else self.__coords
-        spread = spread if spread else self.__spread
-        self.__objectTag = objectTag.lower()
-        self.__coords = coords
-        self.__spread = spread
-        self.__colors = colors
-        self.__gradientMethod = gradientMethod
+        
         self.delete()
 
         objectCreator = self.__objectDictCreate[self.__objectTag]
@@ -199,9 +195,7 @@ class GradientLine(Gradient):
         self.xwidth = xwidth
         self._createDotLinesCoords()
         self.length = self.dLIcoords.__len__()
-        print(self.dotLineCoords[0])
-        print(self.dotLineCoords[::-1][0])
-        print(self.coords)
+
         self.dotlinescolors = self.MindMultiGradient(self.length)
 
     def __call__(self, coords:tuple = [], colors=[],width=3, mode: Literal['rgb'] | Literal['hex'] = None,xwidth = 3) -> None:
@@ -229,7 +223,7 @@ class GradientLine(Gradient):
 
     
     def _createDotLinesCoords(self):
-        self.dLIcoords = Coordinates(self.coords)
+        self.dLIcoords = RangeCoordinates(self.coords)
         for x1 , y1 in self.dLIcoords:
             w2 = int (self.width/2) 
             coord1 = list(angleToPoint(pointToAngle(self.x1,self.y1,self.x2,self.y2)+95,(x1,y1),w2))
@@ -252,12 +246,15 @@ class GradientLine(Gradient):
 
 
 class GradientCircle(GradientCanvasObject):
-    def __init__(self, canvas: Canvas, coords: tuple[int, int], radius:int = 40, border: int = 10, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRMMG'] = 'MMG') -> None:
+    '''
+    
+    '''
+    def __init__(self, canvas: Canvas, coords: tuple[int, int], radius:int = 40, border: int = 10, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRM'] = 'MMG') -> None:
         self.radius = radius
         self.ccoords = coords
         super().__init__(canvas,[coords[0]-radius,coords[1]-radius,coords[0]+radius,coords[1]+radius], border, colors, gradientMethod, objectTag = 'circle')
 
-    def __call__(self, coords: list = None,radius:int = None, border: int = None, colors: list = None,gradientMethod: Literal['MMG'] | Literal['DRMMG'] = None):
+    def __call__(self, coords: list = None,radius:int = None, border: int = None, colors: list = None,gradientMethod: Literal['MMG'] | Literal['DRM'] = None):
         if radius:
             self.radius = radius
         if coords:
@@ -267,10 +264,10 @@ class GradientCircle(GradientCanvasObject):
         return super().__call__(self.ccoords, border, colors,gradientMethod=gradientMethod)
         
 class GradientRectangle(GradientCanvasObject):
-    def __init__(self, canvas: Canvas, coords: tuple[int, int, int, int], border: int = 30, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRMMG'] = 'MMG') -> None:
+    def __init__(self, canvas: Canvas, coords: tuple[int, int, int, int], border: int = 30, colors: list[str] = ..., gradientMethod: Literal['MMG'] | Literal['DRM'] = 'MMG') -> None:
         super().__init__(canvas, coords, border, colors, gradientMethod, objectTag = 'rectangle')
 
-    def __call__(self, coords: list = None, border: int = None, colors: list = None,gradientMethod: Literal['MMG'] | Literal['DRMMG'] = None):
+    def __call__(self, coords: list = None, border: int = None, colors: list = None,gradientMethod: Literal['MMG'] | Literal['DRM'] = None):
         return super().__call__(coords, border, colors,gradientMethod=gradientMethod)
 
 def Example():
@@ -281,10 +278,10 @@ def Example():
     sec = GradientLine(canvas,(-30,-30,500,500),colors=('black','cyan'),width=10)
     minute = GradientLine(canvas,(100,100,400,800),colors=('black','#00dddd'),width=10)
     hour = GradientLine(canvas,(100,100,400,800),colors=('black','#004C4c'),width=10)
-    circle = GradientCircle(canvas,(0,0),40,border=30,gradientMethod='DRMMG',colors=['cyan','#004848','black'])
+    circle = GradientCircle(canvas,(0,0),40,border=30,gradientMethod='DRM',colors=['cyan','#004848','black'])
     # root.resizable(False,False)
     
-    while True:
+    def loop():
         time.sleep(0.01)
         pos = root.winfo_pointerxy()
         canvas.config(width=int(root.winfo_width()),height=int(root.winfo_height()))
@@ -305,6 +302,8 @@ def Example():
         minute.create()
         hour.create()
         root.update()
+        root.after(1,loop)
+    loop()
     root.mainloop()
 
 

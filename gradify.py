@@ -33,9 +33,9 @@ print(gradient_colors)
 
 
 
-from tkinter import Canvas,Tk,BOTH # For the `GradientCanvasObject`
+
 import math
-from random import sample,choice
+from random import choice
 from typing import Literal
 import numpy as np
 
@@ -725,11 +725,12 @@ The returned list is extended with a revered version of it self
 def Example():  
     grad = Gradient() 
     root = Tk(screenName='GRADIENT')
-    root.geometry('700x300')
+    root.geometry('500x500')
     root.update()
     root.title('Gradient Tk')
     # root.attributes('-alpha',0.3)
     # 
+    # root.overrideredirect(True)
     root.attributes('-topmost',1)
     geo = lambda : (int(root.winfo_width()),int(root.winfo_height()))
     canvas = Canvas(root,width=geo()[0],height=geo()[1],bg='#021316',highlightthickness=0)
@@ -742,18 +743,15 @@ def Example():
     ackeys.remove('black')
     
 
-    gr = GradientCanvasObject(coords=(100,100,100,200,400)
-                              ,spread=200,
-                              canvas=canvas,
-                              gradientMethod='DRMMG',
-                              objectTag='c'
+    obj = GradientCircle(coords=(100,100),
+                        radius=10,
+                        border=200,
+                        canvas=canvas,
+                        gradientMethod='DRM',
                         )
-    lines = GradientCanvasObject(coords=(0,0,0,0),
-                                 spread=200,
-                                 canvas=canvas,
-                                 objectTag='line')
-    while True:
-        
+    
+    def loop():
+            
         ichoice = choice(range(ackeys.__len__()))
         inc = 3
         colorChoice = canvas['bg'],*ackeys[ichoice:ichoice+inc if ichoice < ackeys.__len__()-(inc+1) else ichoice-(inc+1)],canvas['bg']
@@ -761,23 +759,28 @@ def Example():
         colorsp = grad.MindMultiGradient(500)
         root.update()
         for i in colorsp:
-            pos = root.winfo_pointerxy()
-            
-            color = i,canvas['bg']
-            # root.attributes('-transparentcolor',color[0])
-            # color =  rgb2hex(pixel(pos[0],pos[1])),canvas['bg']
-            canvas.config(width=geo()[0],height=geo()[1])
-            lx = (pos[0]-root.winfo_rootx())
-            ly = (pos[1]-root.winfo_rooty())
-            # gr.create(coords=(int(int(canvas['width'])/2),int(int(canvas['height'])/2),int(int(canvas['width'])/2),int(int(canvas['height'])/2)),colors=color)
-            gr.create(coords=(lx,ly,lx,ly),colors=color)
-            # lines.create(coords=(0,0,0,int(canvas['height'])),spread=lx,colors=[canvas['bg'],'#ff0000','#00ff00','#0000ff',canvas['bg']])
-            root.update()
+            try:
+                pos = root.winfo_pointerxy()
+                
+                color = i,canvas['bg']
+                # root.attributes('-transparentcolor',color[0])
+                # color =  rgb2hex(pixel(pos[0],pos[1])),canvas['bg']
+                canvas.config(width=geo()[0],height=geo()[1])
+                lx = (pos[0]-root.winfo_rootx())
+                ly = (pos[1]-root.winfo_rooty())
+                obj(coords=(lx,ly),colors=color)
+                obj.create()
+                root.update()
+            except:pass
+        root.after(1,loop)
+    loop()
+    root.mainloop()
         
 
 
 if __name__ == '__main__':
-    # try:
-    from gradientTk import GradientCanvasObject
-    Example()
-    # except tkinter.TclError:pass
+    from tkinter import Canvas,Tk,BOTH
+    try:
+        from gradientTk import GradientCircle
+        Example()
+    except Exception as e: print(e)
