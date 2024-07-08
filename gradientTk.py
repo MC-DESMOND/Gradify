@@ -73,8 +73,8 @@ To delete the gradient
 
     def __call__(self,coords:list = None,
                   spread : int = None ,
-                  colors:list = None,
-                  objectTag: Literal['circle','rectangle','polygon','line'] = None,
+                  colors : list = None,
+                  objectTag : Literal['circle','rectangle','polygon','line'] = None,
                   gradientMethod : Literal['MMG','DRM'] = None ):
         ''' reconfigue the object
         >>> grObj(coords=(x1,y1,x2,y2),colors=('cyan','blue','green'))
