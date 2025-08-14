@@ -344,6 +344,12 @@ AllColors = {'aliceblue': [240, 248, 255],
  'yellowsunshine': [255, 247, 0]}
 
 
+class GradifyColorError(Exception):...
+class GradifyColorListLengthError(Exception):...
+class GradifyColorCodeError(Exception):...
+class GradifyInvalidColorError(ValueError):...
+class GradifyValueError(ValueError):...
+
 def MiddlePoint(coordinates):
   """
   Calculates the middle point of a line represented by a list of coordinates.
@@ -467,9 +473,9 @@ Using color names
         elif len(rgb) == 3:
             r, g, b = rgb[0] * 2, rgb[1] * 2, rgb[2] * 2
         else:
-            raise ValueError()
+            raise GradifyValueError()
     except:
-        raise ValueError("Invalid value %r provided for rgb color."
+        raise GradifyValueError("Invalid value %r provided for rgb color."
                         % str_rgb)
     return tuple([int(int(v, 16)) for v in (r, g, b)])
 
@@ -520,7 +526,6 @@ Generate coordinates of a line using an `angle` `OriginPoint` and `length`
 
 
 class Gradient:
-
     def __init__(self,colors=[],mode:Literal['rgb','hex']=None) -> None:
         """ 
 Generate a list of colors of either rgb or hex 
@@ -677,7 +682,55 @@ Generate a list of `lengthOfList` colors
         
         return grad
 
+    def PercentMMG(self,length:int,list2d:list):
+        grad = []
+        percent = []
+        colors = []
+        numofcolor = list2d.__len__()
+        for i in list2d:
+            if percent.__len__() > 0:
+                t = 0 
+                for p in percent:
+                    t += abs(p)
+                if t+i[1] <= 100:
+                    percent.append(i[1])
+                else:
+                    percent.append(100 - t)
+            else:
+                percent.append(i[1])
+            
+            colors.append(i[0])
+        t = 0
+        for p in percent:
+            t += abs(p)
+        if t < 100:
+            percent = percent[::-1]
+            percent[0] += (100 - t)
+            percent = percent[::-1]
+        List = [self.MindMultiGradient(2,[colors[0],colors[0]])[0]]
+        for index,obj in enumerate(percent):
+            plength = math.floor((obj/100)*length)
+            div = int(plength/int(obj/10))
+            print("length ",plength)
+            print("index ",index)
+            print("div ",div)
+            print("obj ",obj)
+            print("percent ",percent)
+            if index == list(enumerate(percent))[::-1][0][0] :
+                List = self.MindMultiGradient(plength-div,[List[::-1][0],List[::-1][0]])
+                List.extend(self.MindMultiGradient(div,[List[::-1][0],colors[index]]))
 
+                print("last111 ",List[::-1][0])
+            else:
+                List = self.MindMultiGradient(plength-div,[List[::-1][0],List[::-1][0]])
+                List.extend(self.MindMultiGradient(div,[List[::-1][0],colors[index+1]]))
+                print("last ",List[::-1][0])
+
+            # List = self.MindMultiGradient(plength,[List[0],List[::-1][int(plength/2)]])
+            # grad.append("cyan")
+            grad.extend(List)
+        
+        return grad
 
     def DoubleReveredMergedMindMultiGradient(self,lengthOfList ,COLORS) -> list:
         """ 
@@ -701,8 +754,8 @@ The returned list is extended with a revered version of it self
         return spread
     
 
-
-    def rgbFIYhexList(self ,HEXlist)-> list[tuple]:
+    @staticmethod
+    def rgbFIYhexList(HEXlist)-> list[tuple]:
         """ Convert a hex list to an rgb list"""
         try:
             fil = [hex2rgb(i) for i in HEXlist]
@@ -711,8 +764,8 @@ The returned list is extended with a revered version of it self
         return fil
     
 
-    
-    def hexFIYrgbList(self ,RGBlist) -> list[str]:
+    @staticmethod
+    def hexFIYrgbList(RGBlist) -> list[str]:
         """ Convert a rgb list to a hex list"""
         try:
             fil = [rgb2hex(i) for i in fil]
@@ -721,9 +774,37 @@ The returned list is extended with a revered version of it self
         return fil
 
 
+# def create_rounded_rectangle(canvas, x1, y1, x2, y2, radius=25, **kwargs):
+#     points = [x1+radius, y1,
+#               x1+radius, y1,
+#               x2-radius, y1,
+#               x2-radius, y1,
+#               x2, y1,
+#               x2, y1+radius,
+#               x2, y1+radius,
+#               x2, y2-radius,
+#               x2, y2-radius,
+#               x2, y2,
+#               x2-radius, y2,
+#               x2-radius, y2,
+#               x1+radius, y2,
+#               x1+radius, y2,
+#               x1, y2,
+#               x1, y2-radius,
+#               x1, y2-radius,
+#               x1, y1+radius,
+#               x1, y1+radius,
+#               x1, y1]
+
+#     return canvas.create_polygon(points, **kwargs, smooth=True)
+
+
+
 
 def Example():  
     grad = Gradient() 
+    pli = grad.PercentMMG(1000,[["cyan",20],["black",60],["#007946",10],["red",10]])
+    # print(pli)
     root = Tk(screenName='GRADIENT')
     root.geometry('500x500')
     root.update()
@@ -735,13 +816,15 @@ def Example():
     geo = lambda : (int(root.winfo_width()),int(root.winfo_height()))
     canvas = Canvas(root,width=geo()[0],height=geo()[1],bg='#021316',highlightthickness=0)
     canvas.pack(expand=True,fill=BOTH)
+
     # root.attributes('-transparentcolor',canvas['bg'])
     grad(('black','cyan','blue','black'))
     print(canvas['width'])
     print(canvas['height'])
     ackeys = list(AllColors.keys())
     ackeys.remove('black')
-    
+    for i,o in enumerate(pli):
+        canvas.create_line(i,0,i,1000,fill=o)
 
     obj = GradientCircle(coords=(100,100),
                         radius=10,
@@ -780,7 +863,7 @@ def Example():
 
 if __name__ == '__main__':
     from tkinter import Canvas,Tk,BOTH
-    try:
-        from gradientTk import GradientCircle
-        Example()
-    except Exception as e: print(e)
+    # try:
+    from gradientTk import GradientCircle
+    Example()
+    # except Exception as e: print(e)

@@ -138,10 +138,8 @@ To reconfigure the coordinates
         
         lengthColorList = 0
         try:
-            print(self.__colorList)
             lengthColorList = list(enumerate(self.__colorList))[::-1][0][0]
         except:pass
-        print(lengthColorList)
         if coords.__len__() <=2:
             coords = [jj+lengthColorList for jj in coords]
         else:
